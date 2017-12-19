@@ -1,0 +1,38 @@
+<h3><%= @event.name %></h3>
+<table>
+	<tr>
+		<td>Host:</td>
+		<td><%= @event.user.first_name %> <%= @event.user.last_name %></td>
+	</tr>
+	<tr>
+		<td>Date:</td>
+		<td><%= @event.date %></td>
+	</tr>
+	<tr>
+		<td>Location:</td>
+		<td><%= @event.location %></td>
+	</tr>
+	<tr>
+		<td>People Joining the Event:</td>
+		<td><%= @event.attends.count %> </td>
+	</tr>
+</table>
+<hr>
+<table>
+	<tr>
+		<th>Name</th>
+		<th>Location</th>
+		<th>State</th>
+	</tr>
+	<% @joins.each do |attend| %>
+	<tr>
+		<td><%= attend.user.first_name %>  <%= attend.user.last_name %></td>
+		<td><%= attend.user.location %></td>
+		<td><%= attend.user.state %></td>
+	</tr>
+	<% end %> 
+</table>
+
+<h3>Discussion about this event:</h3>
+<div id="comments">
+</div>

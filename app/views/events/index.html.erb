@@ -1,0 +1,158 @@
+<html>
+<head>
+	<title>Events Page</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
+	 crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
+	 crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+	 crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
+	 crossorigin="anonymous"></script>
+</head>
+	<body>
+		<form action="<%= edit_user_path session[:user_id] %>" method="get">
+			<input type ='hidden' name='authenticity_token' value='<%= form_authenticity_token %>'/>
+			<input type ="submit" style="margin-left:1150px;" value="Edit My Profile"/>
+		</form>
+		<form action="<%= logout_user_path %>" method="post">
+			<input type ='hidden' name='authenticity_token' value='<%= form_authenticity_token %>'/>
+			<input type ='hidden' name='_method' value='delete'/>
+			<input type ="submit" style="margin-left:1300px;" value="Logout"/>
+		</form>
+		<div class="container">
+			<h1>Welcome, <%= @user.first_name %>!</h1>
+			<br>
+			<br>
+			<% if flash[:errors] %>
+				<% flash[:errors].each do |error| %>
+					<p><%= error %></p>
+				<% end %>
+			<% end %>
+
+			<h3>Here are some of the events in your state:</h3>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="col">Name</th>
+						<th scope="col">Date</th>
+						<th scope="col">Location</th>
+						<th scope="col">Host</th>
+						<th scope="col">Action/Status</th>
+					</tr>
+				</thead>
+				<tbody>
+				<% @localevents.each do |event| %>
+					<tr>
+						<td><a href=""> <%= event.name %></a></td>
+						<td><%= event.date %></td>
+						<td><%= event.location %></td>
+						<td><%= event.user.first_name %></td>
+						<% if event.user.id == session[:user_id] %>
+						<td>
+							<a href="">Edit</a>
+							<form action="<%= delete_event_path %>" method="post">
+								<input type ='hidden' name='authenticity_token' value='<%= form_authenticity_token %>'/>
+								<input type ='hidden' name='_method' value='delete'/>
+								<input type ="submit" value="Delete"/>
+							</form>
+						</td>
+						<% else %>
+							<% if event.attendees.include? @user %>
+						<td>
+							<form action="<%= delete_attend_path %>" method="post">
+								<input type ='hidden' name='authenticity_token' value='<%= form_authenticity_token %>'/>
+								<input type ='hidden' name='attend[event_id]' value="<%= event.id %>"/>
+								<input type ="submit" value="Cancel"/>
+							</form>
+						</td>
+							<% else %>
+							<td>
+								<form action="<%= create_attend_path %>" method="post">
+									<input type ='hidden' name='authenticity_token' value='<%= form_authenticity_token %>'/>
+									<input type ='hidden' name='attend[event_id]' value="<%= event.id %>"/>
+									<input type ="submit" value="Join"/>
+								</form>
+							</td>
+							<% end %>
+						<% end %>
+					</tr>
+				<% end %>
+				</tbody>
+			</table>
+			<br>
+			<h3>Here are some of the events in other states:</h3>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="col">Name</th>
+						<th scope="col">Date</th>
+						<th scope="col">Location</th>
+						<th scope="col">State</th>
+						<th scope="col">Host</th>
+						<th scope="col">Action</th>
+					</tr>
+				</thead>
+				<tbody>
+				<% @otherevents.each do |event| %>
+					<tr>
+						<td><a href=""> <%= event.name %></a></td>
+						<td><%= event.date %></td>
+						<td><%= event.location %></td>
+						<td><%= event.state %></td>
+						<td><%= event.user.first_name %></td>
+						<% if event.user.id == session[:user_id] %>
+						<td>
+							<a href="">Edit</a>
+							<form action="<%= delete_event_path %>" method="post">
+								<input type ='hidden' name='authenticity_token' value='<%= form_authenticity_token %>'/>
+								<input type ='hidden' name='_method' value='delete'/>
+								<input type ="submit" value="Delete"/>
+							</form>
+						</td>
+						<% else %>
+						<td>
+							<a href="">Join</a>
+						</td>
+						<% end %>
+					</tr>
+				<% end %>
+				</tbody>
+			</table>
+			<br>
+			<h3>Add Event</h3>
+			<form class="form-horizontal" action="<%= create_event_path %>" method="post">
+				<input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+				<div class="form-group">
+					<label class="control-label col-sm-2" for="name">Name:</label>
+					<div class="col-sm-10">
+						<input type="text" name="event[name]" class="form-control" id="name">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-sm-2" for="date">Date:</label>
+					<div class="col-sm-10">
+						<input type="date" name="event[date]" class="form-control" id="date">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-sm-2" for="location">Location:</label>
+					<div class="col-sm-10">
+						<input type="text" name="event[location]" class="form-control" id="location">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-sm-2" for="state">State:</label>
+					<div class="col-sm-10">
+						<input type="text" name="event[state]" class="form-control" id="state">
+					</div>
+				</div>
+				<div class="form-group"> 
+					<div class="col-sm-offset-2 col-sm-10">
+						<button type="submit">Add Event</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</body>
+</html>
